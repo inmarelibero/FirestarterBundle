@@ -70,6 +70,8 @@ EOF
 
         $basicBundles = Yaml::parse(file_get_contents(__DIR__.'/../Resources/config/basic_bundles.yml'));
 
+        $packages = array();
+
         foreach ($basicBundles['basic_bundles'] as $k => $v)
 
         if ($this->dialog->askConfirmation(
@@ -91,10 +93,12 @@ EOF
             } else {
                 $this->printHelper->printSuccessMessage("Bundle {$packageString} added successfully");
             }
+
+            $packages[] = $v['package_name'];
         }
 
-
-        //die('xxx');
+        $stringPackages = implode($packages, " ");
+        $process = $this->executeCommand("php composer.phar update {$stringPackages}");
     }
 
     /**
