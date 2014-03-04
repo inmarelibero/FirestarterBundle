@@ -1,0 +1,28 @@
+{
+    "name": "inmarelibero/firestarter-bundle",
+    "description": "Firestarter for Symfony2.",
+    "keywords": ["firestarter"],
+    "homepage": "https://github.com/inmarelibero/FirestarterBundle",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "repositories":[
+        {
+            "type":"git",
+            "url":"https://github.com/inmarelibero/FirestarterBundle.git"
+        }
+    ],
+    "authors": [
+        {
+            "name": "Emanuele Gaspari Castelletti",
+            "email": "inmarelibero@gmail.com",
+            "homepage": "https://twitter.com/inmarelibero"
+        }
+    ],
+    "require": {
+        "symfony/framework-bundle": "2.4.*"
+    },
+    "autoload": {
+        "psr-0": { "Inmarelibero\\FirestarterBundle": "" }
+    },
+    "target-dir": "Inmarelibero/FirestarterBundle"
+}

@@ -1,0 +1,17 @@
+basic_bundles:
+
+  StofDoctrineExtensionBundle:
+    package_name: "stof/doctrine-extensions-bundle"
+    version: "1.1.0"
+
+  lessphp:
+    package_name: "leafo/lessphp"
+    version: "0.4.0"
+
+  JMSSerializerBundle:
+    package_name: "jms/serializer-bundle"
+    version: "0.13.0"
+
+  AvalancheImagineBundle:
+    package_name: "avalanche123/imagine-bundle"
+    version: "2.1.2"
