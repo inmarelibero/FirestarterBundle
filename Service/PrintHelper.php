@@ -4,25 +4,19 @@ namespace Inmarelibero\FirestarterBundle\Service;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Helper\FormatterHelper;
 
 class PrintHelper
 {
-    private $input;
-    private $output;
-    private $formatter;
+    private $input,
+        $output,
+        $formatter
+    ;
 
-    public function setInput(InputInterface $input)
+    public function setDependencies(InputInterface $input, OutputInterface $output, FormatterHelper $formatter)
     {
         $this->input = $input;
-    }
-
-    public function setOutput(OutputInterface $output)
-    {
         $this->output = $output;
-    }
-
-    public function setFormatter($formatter)
-    {
         $this->formatter = $formatter;
     }
 
@@ -34,11 +28,11 @@ class PrintHelper
     {
         if ($level === 1) {
             $this->output->writeln(<<<EOD
-<info>
+<fg=yellow>
 ############################################################################################
 # {$string}
 ############################################################################################
-</info>
+</fg=yellow>
 EOD
             );
         }
@@ -54,7 +48,7 @@ EOD
 <info>-> {$string}</info>
 
 EOD
-    );
+        );
     }
 
     /**

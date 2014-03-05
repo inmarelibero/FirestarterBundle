@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="shortcut icon" href="{{ asset('/favicon.ico') }}" />
+
+        {# HEADER STYLESHEETS #}
+        {% stylesheets '@frontend_stylesheets' %}
+            <link rel="stylesheet" type="text/css" href="{{ asset_url }}" />
+        {% endstylesheets %}
+
+
+        {# HEADER JAVASCRIPT #}
+        {% javascripts '@frontend_header_javascripts' %}
+            <script type="text/javascript" src="{{ asset_url }}"></script>
+        {% endjavascripts %}
+    </head>
+
+    <body class="route-{{ app.request.get('_route') }} {% block body_class '' %}">
+
+        {% block body %}{% endblock %}
+
+
+        {# FOOTER JAVASCRIPTS #}
+        {% javascripts '@frontend_footer_javascripts' %}
+            <script type="text/javascript" src="{{ asset_url }}"></script>
+        {% endjavascripts %}
+
+    </body>
+
+</html>

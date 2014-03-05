@@ -6,7 +6,22 @@
 
     <services>
 
+        <!-- CommandHelper -->
+        <service id="inmarelibero_firestarter.command_helper" class="Inmarelibero\FirestarterBundle\Service\CommandHelper">
+            <argument>%kernel.root_dir%</argument>
+        </service>
+
+        <!-- FileHelper -->
+        <service id="inmarelibero_firestarter.file_helper" class="Inmarelibero\FirestarterBundle\Service\FileHelper">
+        </service>
+
+        <!-- PrintHelper -->
         <service id="inmarelibero_firestarter.print_helper" class="Inmarelibero\FirestarterBundle\Service\PrintHelper">
+        </service>
+
+        <!-- TextFileHelper -->
+        <service id="inmarelibero_firestarter.text_file_helper" class="Inmarelibero\FirestarterBundle\Service\TextFileHelper">
+            <argument type="service" id="inmarelibero_firestarter.file_helper" />
         </service>
 
     </services>

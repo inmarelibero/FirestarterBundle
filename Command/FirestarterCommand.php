@@ -6,15 +6,18 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Yaml;
-use Symfony\Component\Process\Process;
 
 class FirestarterCommand extends ContainerAwareCommand
 {
-    private $dialog;
-    private $input;
-    private $output;
+    private $dialog,
+        $input,
+        $output,
+        $printHelper,
+        $commandHelper
+    ;
 
     /**
      * Configure Command
@@ -46,15 +49,34 @@ EOF
         $this->output = $output;
         $this->dialog = $this->getHelperSet()->get('dialog');
 
+        // printHelper
         $this->printHelper = $this->getContainer()->get('inmarelibero_firestarter.print_helper');
-        $this->printHelper->setInput($input);
-        $this->printHelper->setOutput($output);
-        $this->printHelper->setFormatter($this->getHelperSet()->get('formatter'));
+        $this->printHelper->setDependencies($input, $output, $this->getHelperSet()->get('formatter'));
+
+        // commandHelper
+        $this->commandHelper = $this->getContainer()->get('inmarelibero_firestarter.command_helper');
 
         $output->writeln('<info>[InmareliberoFirestarterBundle starting...]</info>');
 
-        $this->installBasicBundles();
+        /*
+         * Install basic bundles
+         */
+        //$this->installBasicBundles();
 
+        /*
+         * Replace web/app_dev.php
+         */
+        $this->replaceAppDev();
+
+        /*
+         * Remove AcmeDemoBundle
+         */
+        $this->removeAcmeDemoBundle();
+
+        /*
+         * Create frontend bundle
+         */
+        $this->createFrontendBundle();
 
     }
 
@@ -86,7 +108,7 @@ EOF
                 $packageString .= ":{$v['version']}";
             }
 
-            $process = $this->executeCommand("php composer.phar require {$packageString} --no-update");
+            $process = $this->commandHelper->executeCommand("php composer.phar require {$packageString} --no-update");
 
             if (!$process->isSuccessful()) {
                 $this->printHelper->printError("Unable to add the bundle {$packageString}");
@@ -97,8 +119,14 @@ EOF
             $packages[] = $v['package_name'];
         }
 
-        $stringPackages = implode($packages, " ");
-        $process = $this->executeCommand("php composer.phar update {$stringPackages}");
+        $packagesString = implode($packages, " ");
+        $process = $this->commandHelper->executeCommand("php composer.phar update {$packagesString}");
+
+        if (!$process->isSuccessful()) {
+            $this->printHelper->printError("Unable to install bundles {$packagesString}");
+        } else {
+            $this->printHelper->printSuccessMessage("Bundles {$packagesString} installed successfully");
+        }
     }
 
     /**
@@ -113,14 +141,13 @@ EOF
             return;
         }
 
-
-        $process = $this->executeCommand("php -r \"readfile('https://getcomposer.org/installer');\" | php");
+        $process = $this->commandHelper->executeCommand("php -r \"readfile('https://getcomposer.org/installer');\" | php");
 
 
         if (!$process->isSuccessful()) {
             $this->printHelper->printError("Unable to install composer.phar with PHP. Trying with curl...");
 
-            $process = $this->executeCommand("curl -sS https://getcomposer.org/installer | php");
+            $process = $this->commandHelper->executeCommand("curl -sS https://getcomposer.org/installer | php");
         }
 
         if (!$process->isSuccessful()) {
@@ -129,51 +156,43 @@ EOF
             $this->printHelper->printError("Unable to install composer.phar with curl");
             $this->printHelper->printError("Unable to install composer.phar", true);
 
-            return;
+            return false;
         }
 
         $this->printHelper->printSuccessMessage("Composer installed successfully");
     }
 
     /**
-     * Execute a command writing on the $output the result in real time
+     * Replaces web/app_dev.php
      *
-     * @param $command
-     * @return Process
+     * @return bool
      */
-    private function executeCommand($command)
+    public function replaceAppDev()
     {
-        chdir($this->getContainer()->getParameter('kernel.root_dir').'/..');
-
-        $process = new Process($command);
-
-        $process->setTimeout(360);
-
-        $process->run(function ($type, $buffer) use (&$process) {
-            if (Process::ERR === $type) {
-                echo $buffer;
-                $process->stop(3, SIGINT);
-            } else {
-                echo $buffer;
-            }
-        });
-
-        return $process;
+        $command = $this->getApplication()->find('inmarelibero_firestarter:_replace_app_dev');
+        $returnCode = $command->run(new ArrayInput(array('command' => $command->getName())), $this->output);
     }
+
+    /**
+     * Removes AcmeDemoBundle
+     *
+     * @return bool
+     */
+    public function removeAcmeDemoBundle()
+    {
+        $command = $this->getApplication()->find('inmarelibero_firestarter:_remove_acme_demo_bundle');
+        $returnCode = $command->run(new ArrayInput(array('command' => $command->getName())), $this->output);
+    }
+
+    /**
+     * Create frontend bundle
+     *
+     * @return bool
+     */
+    public function createFrontendBundle()
+    {
+        $command = $this->getApplication()->find('inmarelibero_firestarter:_generate_frontend_bundle');
+        $returnCode = $command->run(new ArrayInput(array('command' => $command->getName())), $this->output);
+    }
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
